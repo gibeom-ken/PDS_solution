@@ -6,7 +6,6 @@ import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from millify import millify # shortens values (10_000 ---> 10k)
 from datetime import date, timedelta
 
 
@@ -22,18 +21,14 @@ st.set_page_config(
 )
 
 
-# Streamlit 앱의 제목 설정
 st.title('Partner Data Solution팀 솔루션 대시보드')
 st.title('KPI데이터는 더미로 실제와 값이 다릅니다.')
 
-# 사용자 입력을 위한 날짜 선택기 위젯
 start_date = st.date_input('시작 날짜', datetime.date(2024, 1, 1))
 yesterday = date.today() - timedelta(days=1)
 end_date = st.date_input('종료 날짜', yesterday)
 
-# 사용자로부터 입력받은 날짜를 기반으로 쿼리 실행
 if st.button('데이터 조회'):
-    # Trino 연결 설정 (환경에 맞게 수정)
     conn = connect(
         host='ashptrino001-gcp.nfra.io',
         port='8080',
@@ -43,10 +38,8 @@ if st.button('데이터 조회'):
         user='admin',
     verify=False)
     
-    # 커서 생성
     cur = conn.cursor()
     
-    # SQL 쿼리 실행 (테이블 이름과 컬럼 이름을 실제 값으로 교체해야 함)
     query = f"""
     /* QueryEngine: TRINO */
     with cal as (
@@ -184,7 +177,6 @@ if st.button('데이터 조회'):
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["전체", "API데이터솔루션(통계)", "거래 Quick 모니터링", '상품명마스터', '상품진단 솔루션', '유입 Quick 모니터링', '트렌드 Quick 모니터링'])
 
     with tab1:
-            # creates the container for page title
         dash_1 = st.container()
 
         with dash_1:
@@ -192,17 +184,14 @@ if st.button('데이터 조회'):
             st.write("")
 
 
-        # creates the container for metric card
         dash_2 = st.container()
 
         with dash_2:
-            # get kpi metrics
             total_sales = df_merge['발생 매출'].sum()
             yst_sales = df_merge[df_merge['기준일'] == str(yesterday)]['발생 매출'].sum()
-            kpi_goals = round(total_sales/200000000*100,2) #솔루션 6종 KPI 합한 금액
+            kpi_goals = round(total_sales/200000000*100,2) 
 
             col1, col2, col3 = st.columns(3)
-            # create column span
             col1.metric(label="총 매출", value=f"{round(total_sales):,}원")            
             col2.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
             col3.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
