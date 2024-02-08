@@ -22,7 +22,6 @@ st.set_page_config(
 
 
 st.title('Partner Data Solution팀 솔루션 대시보드')
-st.title('KPI데이터는 더미로 실제와 값이 다릅니다.')
 
 start_date = st.date_input('시작 날짜', datetime.date(2024, 1, 1))
 yesterday = date.today() - timedelta(days=1)
@@ -163,12 +162,21 @@ if st.button('데이터 조회'):
     cols = [column[0] for column in cur.description]
     df = pd.DataFrame.from_records(data=rows, columns=cols)
     df = df[df['솔루션명'].isin(['상품명마스터','상품진단 솔루션', 'API데이터솔루션(통계)', '거래 Quick 모니터링', '유입 Quick 모니터링', '트렌드 Quick 모니터링'])].sort_values(by=['솔루션명', '기준일'])
-    KPI_df = pd.DataFrame({'솔루션명':['상품명마스터', '상품진단 솔루션', 'API데이터솔루션(통계)', '거래 Quick 모니터링', '유입 Quick 모니터링', '트렌드 Quick 모니터링'],'KPI':[30000000, 20000000, 10000000, 30000000, 20000000, 10000000]})
+    KPI_df = pd.DataFrame({'솔루션명':['상품명마스터', '상품진단 솔루션', 'API데이터솔루션(통계)', '거래 Quick 모니터링', '유입 Quick 모니터링', '트렌드 Quick 모니터링'],'KPI':[220000000, 360000000, 310000000, 11000000, 15000000, 14000000]}) # 정확한 수치 업데이트 필요
     df_merge = pd.merge(left=df, right=KPI_df, how = "inner", on = "솔루션명")
     df_merge['발생 매출'] = pd.to_numeric(df_merge['발생 매출'], errors='coerce')
     df_merge['누적 매출'] = round(df_merge.groupby('솔루션명')['발생 매출'].cumsum())
     df_merge['달성률'] = round((df_merge['누적 매출'] / df_merge['KPI'])*100,1)
     df_merge = df_merge[['솔루션명', '기준일', '발생 매출', '기간 매출', '완료 매출', '누적 매출', '달성률']]
+
+
+    df_merge_api = df_merge[df_merge['솔루션명'] == 'API데이터솔루션(통계)']
+    df_merge_kq = df_merge[df_merge['솔루션명'] == '거래 Quick 모니터링']
+    df_merge_nm = df_merge[df_merge['솔루션명'] == '상품명마스터']
+    df_merge_pd = df_merge[df_merge['솔루션명'] == '상품진단 솔루션']
+    df_merge_uq = df_merge[df_merge['솔루션명'] == '유입 Quick 모니터링']
+    df_merge_tq = df_merge[df_merge['솔루션명'] == '트렌드 Quick 모니터링']
+
         
         
    
@@ -176,25 +184,25 @@ if st.button('데이터 조회'):
         
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["전체", "API데이터솔루션(통계)", "거래 Quick 모니터링", '상품명마스터', '상품진단 솔루션', '유입 Quick 모니터링', '트렌드 Quick 모니터링'])
 
+    #전체
     with tab1:
         dash_1 = st.container()
-
         with dash_1:
             st.markdown("<h3 style=''text-align: center;''>요약</h3>", unsafe_allow_html=True)
             st.write("")
 
-
         dash_2 = st.container()
-
         with dash_2:
             total_sales = df_merge['발생 매출'].sum()
             yst_sales = df_merge[df_merge['기준일'] == str(yesterday)]['발생 매출'].sum()
-            kpi_goals = round(total_sales/200000000*100,2) 
+            kpi_goals = round(total_sales/930000000*100,2) # 정확한 수치 업데이트 필요
 
-            col1, col2, col3 = st.columns(3)
-            col1.metric(label="총 매출", value=f"{round(total_sales):,}원")            
-            col2.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
-            col3.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col3.metric(label="24년 팀 KPI", value="930,000,000원")            
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+            
 
         
         st.markdown("기간 누적 매출")
@@ -206,86 +214,186 @@ if st.button('데이터 조회'):
         st.markdown("<h3 style=''text-align: center;''>상세 테이블</h3>", unsafe_allow_html=True)
         st.dataframe(data=df_merge, width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)
     
-        
     
-    
-
+    #API데이터솔루션
     with tab2:
-        st.markdown("일별 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == 'API데이터솔루션(통계)'], x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
+        dash_1 = st.container()
+        with dash_1:
+            st.markdown("<h3 style=''text-align: center;''>요약</h3>", unsafe_allow_html=True)
+            st.write("")
 
-        st.markdown("누적 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == 'API데이터솔루션(통계)'], x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
-    
-        st.markdown("KPI 달성률")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == 'API데이터솔루션(통계)'], x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
+        dash_2 = st.container()
+        with dash_2:
+            total_sales = df_merge_api['발생 매출'].sum()
+            yst_sales = df_merge_api[df_merge_api['기준일'] == str(yesterday)]['발생 매출'].sum()
+            kpi_goals = round(total_sales/310000000*100,2) # 정확한 수치 업데이트 필요
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col3.metric(label="24년 KPI", value="310,000,000원")            
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
         
+        st.markdown("일별 매출")
+        st.bar_chart(data=df_merge_api, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
 
-        st.dataframe(data=df_merge[df_merge['솔루션명'] == 'API데이터솔루션(통계)'], width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)
+        st.markdown("누적 매출")
+        st.bar_chart(data=df_merge_api, x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
     
+        st.markdown("KPI 달성률")
+        st.line_chart(data=df_merge_api, x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
+        
+        st.dataframe(data=df_merge_api, width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)
+    
+    #거래Quick모니터링
     with tab3:
+        dash_1 = st.container()
+        with dash_1:
+            st.markdown("<h3 style=''text-align: center;''>요약</h3>", unsafe_allow_html=True)
+            st.write("")
+
+        dash_2 = st.container()
+        with dash_2:
+            total_sales = df_merge_api['발생 매출'].sum()
+            yst_sales = df_merge_api[df_merge_api['기준일'] == str(yesterday)]['발생 매출'].sum()
+            kpi_goals = round(total_sales/11000000*100,2)
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col3.metric(label="24년 KPI", value="11,000,000원")            
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+
         st.markdown("일별 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '거래 Quick 모니터링'], x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_kq, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
 
         st.markdown("누적 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '거래 Quick 모니터링'], x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_kq, x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
 
         st.markdown("KPI 달성률")
-        st.line_chart(data=df_merge[df_merge['솔루션명'] == '거래 Quick 모니터링'], x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
+        st.line_chart(data=df_merge_kq, x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
 
+        st.dataframe(data=df_merge_kq, width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)
 
-
-
-
-        st.dataframe(data=df_merge[df_merge['솔루션명'] == '거래 Quick 모니터링'], width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)
-
+    #상품명마스터
     with tab4:
+        dash_1 = st.container()
+        with dash_1:
+            st.markdown("<h3 style=''text-align: center;''>요약</h3>", unsafe_allow_html=True)
+            st.write("")
+
+        dash_2 = st.container()
+        with dash_2:
+            total_sales = df_merge_nm['발생 매출'].sum()
+            yst_sales = df_merge_nm[df_merge_nm['기준일'] == str(yesterday)]['발생 매출'].sum()
+            kpi_goals = round(total_sales/220000000*100,2)
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col3.metric(label="24년 KPI", value="220,000,000원")            
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+
         st.markdown("일별 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '상품명마스터'], x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_nm, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
 
         st.markdown("누적 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '상품명마스터'], x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_nm, x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
 
         st.markdown("KPI 달성률")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '상품명마스터'], x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
+        st.line_chart(data=df_merge_nm, x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
 
-        st.dataframe(data=df_merge[df_merge['솔루션명'] == '상품명마스터'], width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)    
+        st.dataframe(data=df_merge_nm, width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)    
 
+    #상품진단
     with tab5:
+        dash_1 = st.container()
+        with dash_1:
+            st.markdown("<h3 style=''text-align: center;''>요약</h3>", unsafe_allow_html=True)
+            st.write("")
+
+        dash_2 = st.container()
+        with dash_2:
+            total_sales = df_merge_pd['발생 매출'].sum()
+            yst_sales = df_merge_pd[df_merge_pd['기준일'] == str(yesterday)]['발생 매출'].sum()
+            kpi_goals = round(total_sales/360000000*100,2)
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col3.metric(label="24년 KPI", value="360,000,000원")            
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+
         st.markdown("일별 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '상품진단 솔루션'], x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_pd, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
 
         st.markdown("누적 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '상품진단 솔루션'], x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_pd, x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
     
         st.markdown("KPI 달성률")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '상품진단 솔루션'], x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_pd, x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
 
-        st.dataframe(data=df_merge[df_merge['솔루션명'] == '상품진단 솔루션'], width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)
+        st.dataframe(data=df_merge_pd, width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)
     
+    #유입
     with tab6:
+        dash_1 = st.container()
+        with dash_1:
+            st.markdown("<h3 style=''text-align: center;''>요약</h3>", unsafe_allow_html=True)
+            st.write("")
+
+        dash_2 = st.container()
+        with dash_2:
+            total_sales = df_merge_uq['발생 매출'].sum()
+            yst_sales = df_merge_uq[df_merge_uq['기준일'] == str(yesterday)]['발생 매출'].sum()
+            kpi_goals = round(total_sales/15000000*100,2)
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col3.metric(label="24년 KPI", value="15,000,000원")            
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+
         st.markdown("일별 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '유입 Quick 모니터링'], x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_uq, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
 
         st.markdown("누적 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '유입 Quick 모니터링'], x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_uq, x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
 
         st.markdown("KPI 달성률")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '유입 Quick 모니터링'], x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
+        st.line_chart(data=df_merge_uq, x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
 
-        st.dataframe(data=df_merge[df_merge['솔루션명'] == '유입 Quick 모니터링'], width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)
+        st.dataframe(data=df_merge_uq, width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)
 
+    #트렌드
     with tab7:
+        dash_1 = st.container()
+        with dash_1:
+            st.markdown("<h3 style=''text-align: center;''>요약</h3>", unsafe_allow_html=True)
+            st.write("")
+
+        dash_2 = st.container()
+        with dash_2:
+            total_sales = df_merge_tq['발생 매출'].sum()
+            yst_sales = df_merge_tq[df_merge_tq['기준일'] == str(yesterday)]['발생 매출'].sum()
+            kpi_goals = round(total_sales/14000000*100,2)
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col3.metric(label="24년 KPI", value="14,000,000원")            
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+
         st.markdown("일별 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '트렌드 Quick 모니터링'], x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_tq, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
 
         st.markdown("누적 매출")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '트렌드 Quick 모니터링'], x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
+        st.bar_chart(data=df_merge_tq, x='기준일', y='누적 매출', color=None, width=0, height=0, use_container_width=True)
 
         st.markdown("KPI 달성률")
-        st.bar_chart(data=df_merge[df_merge['솔루션명'] == '트렌드 Quick 모니터링'], x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
+        st.line_chart(data=df_merge_tq, x='기준일', y='달성률', color=None, width=0, height=0, use_container_width=True)
 
-        st.dataframe(data=df_merge[df_merge['솔루션명'] == '트렌드 Quick 모니터링'], width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)    
+        st.dataframe(data=df_merge_tq, width=None, height=None, use_container_width=True, hide_index=True, column_order=None, column_config=None)    
     
 
     
