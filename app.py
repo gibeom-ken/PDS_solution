@@ -10,8 +10,6 @@ from datetime import date, timedelta
 
 
 
-
-
 plt.rcParams['font.family'] = 'AppleGothic'
 
 st.set_page_config(
@@ -176,10 +174,11 @@ if st.button('데이터 조회'):
     df_merge_pd = df_merge[df_merge['솔루션명'] == '상품진단 솔루션']
     df_merge_uq = df_merge[df_merge['솔루션명'] == '유입 Quick 모니터링']
     df_merge_tq = df_merge[df_merge['솔루션명'] == '트렌드 Quick 모니터링']
+    
 
-        
-        
-   
+
+    
+
 
         
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["전체", "API데이터솔루션(통계)", "거래 Quick 모니터링", '상품명마스터', '상품진단 솔루션', '유입 Quick 모니터링', '트렌드 Quick 모니터링'])
@@ -195,13 +194,18 @@ if st.button('데이터 조회'):
         with dash_2:
             total_sales = df_merge['발생 매출'].sum()
             yst_sales = df_merge[df_merge['기준일'] == str(yesterday)]['발생 매출'].sum()
-            kpi_goals = round(total_sales/930000000*100,2) # 정확한 수치 업데이트 필요
+            kpi_goals = round(total_sales/930000000*100,2) 
+            
+            yesterday2 = date.today() - timedelta(days=2)
+            yst_sales2 = df_merge[df_merge['기준일'] == str(yesterday2)]['발생 매출'].sum()
+            total_sales2 = df_merge[df_merge['기준일'] < str(yesterday)]['발생 매출'].sum()
+            kpi_goals2 = round(total_sales2/930000000*100,2)
 
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
-            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원", delta = f"{round(yst_sales-yst_sales2):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원", delta = f"{round(total_sales-total_sales2):,}원")            
             col3.metric(label="24년 팀 KPI", value="930,000,000원")            
-            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%", delta = str(round(kpi_goals-kpi_goals2,2))+"%")
             
 
         
@@ -226,13 +230,18 @@ if st.button('데이터 조회'):
         with dash_2:
             total_sales = df_merge_api['발생 매출'].sum()
             yst_sales = df_merge_api[df_merge_api['기준일'] == str(yesterday)]['발생 매출'].sum()
-            kpi_goals = round(total_sales/310000000*100,2) # 정확한 수치 업데이트 필요
+            kpi_goals = round(total_sales/310000000*100,2)
+
+            yesterday2 = date.today() - timedelta(days=2)
+            yst_sales2 = df_merge_api[df_merge_api['기준일'] == str(yesterday2)]['발생 매출'].sum()
+            total_sales2 = df_merge_api[df_merge_api['기준일'] < str(yesterday)]['발생 매출'].sum()
+            kpi_goals2 = round(total_sales2/310000000*100,2)
 
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
-            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원", delta = f"{round(yst_sales-yst_sales2):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원", delta = f"{round(total_sales-total_sales2):,}원")            
             col3.metric(label="24년 KPI", value="310,000,000원")            
-            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%", delta = str(round(kpi_goals-kpi_goals2,2))+"%")
         
         st.markdown("일별 매출")
         st.bar_chart(data=df_merge_api, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
@@ -254,15 +263,20 @@ if st.button('데이터 조회'):
 
         dash_2 = st.container()
         with dash_2:
-            total_sales = df_merge_api['발생 매출'].sum()
-            yst_sales = df_merge_api[df_merge_api['기준일'] == str(yesterday)]['발생 매출'].sum()
+            total_sales = df_merge_kq['발생 매출'].sum()
+            yst_sales = df_merge_kq[df_merge_kq['기준일'] == str(yesterday)]['발생 매출'].sum()
             kpi_goals = round(total_sales/11000000*100,2)
 
+            yesterday2 = date.today() - timedelta(days=2)
+            yst_sales2 = df_merge_kq[df_merge_kq['기준일'] == str(yesterday2)]['발생 매출'].sum()
+            total_sales2 = df_merge_kq[df_merge_kq['기준일'] < str(yesterday)]['발생 매출'].sum()
+            kpi_goals2 = round(total_sales2/11000000*100,2)
+
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
-            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원", delta = f"{round(yst_sales-yst_sales2):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원", delta = f"{round(total_sales-total_sales2):,}원")            
             col3.metric(label="24년 KPI", value="11,000,000원")            
-            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%", delta = str(round(kpi_goals-kpi_goals2,2))+"%")
 
         st.markdown("일별 매출")
         st.bar_chart(data=df_merge_kq, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
@@ -288,11 +302,16 @@ if st.button('데이터 조회'):
             yst_sales = df_merge_nm[df_merge_nm['기준일'] == str(yesterday)]['발생 매출'].sum()
             kpi_goals = round(total_sales/220000000*100,2)
 
+            yesterday2 = date.today() - timedelta(days=2)
+            yst_sales2 = df_merge_nm[df_merge_nm['기준일'] == str(yesterday2)]['발생 매출'].sum()
+            total_sales2 = df_merge_nm[df_merge_nm['기준일'] < str(yesterday)]['발생 매출'].sum()
+            kpi_goals2 = round(total_sales2/220000000*100,2)
+
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
-            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원", delta = f"{round(yst_sales-yst_sales2):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원", delta = f"{round(total_sales-total_sales2):,}원")            
             col3.metric(label="24년 KPI", value="220,000,000원")            
-            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%", delta = str(round(kpi_goals-kpi_goals2,2))+"%")
 
         st.markdown("일별 매출")
         st.bar_chart(data=df_merge_nm, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
@@ -318,11 +337,17 @@ if st.button('데이터 조회'):
             yst_sales = df_merge_pd[df_merge_pd['기준일'] == str(yesterday)]['발생 매출'].sum()
             kpi_goals = round(total_sales/360000000*100,2)
 
+            yesterday2 = date.today() - timedelta(days=2)
+            yst_sales2 = df_merge_pd[df_merge_pd['기준일'] == str(yesterday2)]['발생 매출'].sum()
+            total_sales2 = df_merge_pd[df_merge_pd['기준일'] < str(yesterday)]['발생 매출'].sum()
+            kpi_goals2 = round(total_sales2/360000000*100,2)
+
+
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
-            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원", delta = f"{round(yst_sales-yst_sales2):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원", delta = f"{round(total_sales-total_sales2):,}원")            
             col3.metric(label="24년 KPI", value="360,000,000원")            
-            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%", delta = str(round(kpi_goals-kpi_goals2,2))+"%")
 
         st.markdown("일별 매출")
         st.bar_chart(data=df_merge_pd, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
@@ -347,12 +372,17 @@ if st.button('데이터 조회'):
             total_sales = df_merge_uq['발생 매출'].sum()
             yst_sales = df_merge_uq[df_merge_uq['기준일'] == str(yesterday)]['발생 매출'].sum()
             kpi_goals = round(total_sales/15000000*100,2)
+            
+            yesterday2 = date.today() - timedelta(days=2)
+            yst_sales2 = df_merge_uq[df_merge_uq['기준일'] == str(yesterday2)]['발생 매출'].sum()
+            total_sales2 = df_merge_uq[df_merge_uq['기준일'] < str(yesterday)]['발생 매출'].sum()
+            kpi_goals2 = round(total_sales2/15000000*100,2)
 
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
-            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원", delta = f"{round(yst_sales-yst_sales2):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원", delta = f"{round(total_sales-total_sales2):,}원")            
             col3.metric(label="24년 KPI", value="15,000,000원")            
-            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%", delta = str(round(kpi_goals-kpi_goals2,2))+"%")
 
         st.markdown("일별 매출")
         st.bar_chart(data=df_merge_uq, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
@@ -378,11 +408,16 @@ if st.button('데이터 조회'):
             yst_sales = df_merge_tq[df_merge_tq['기준일'] == str(yesterday)]['발생 매출'].sum()
             kpi_goals = round(total_sales/14000000*100,2)
 
+            yesterday2 = date.today() - timedelta(days=2)
+            yst_sales2 = df_merge_tq[df_merge_tq['기준일'] == str(yesterday2)]['발생 매출'].sum()
+            total_sales2 = df_merge_tq[df_merge_tq['기준일'] < str(yesterday)]['발생 매출'].sum()
+            kpi_goals2 = round(total_sales2/14000000*100,2)
+
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원")            
-            col2.metric(label="총 매출", value=f"{round(total_sales):,}원")            
+            col1.metric(label="어제 매출", value=f"{round(yst_sales):,}원", delta = f"{round(yst_sales-yst_sales2):,}원")            
+            col2.metric(label="총 매출", value=f"{round(total_sales):,}원", delta = f"{round(total_sales-total_sales2):,}원")            
             col3.metric(label="24년 KPI", value="14,000,000원")            
-            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%")
+            col4.metric(label="KPI 달성률", value= str(kpi_goals)+"%", delta = str(round(kpi_goals-kpi_goals2,2))+"%")
 
         st.markdown("일별 매출")
         st.bar_chart(data=df_merge_tq, x='기준일', y='발생 매출', color=None, width=0, height=0, use_container_width=True)
@@ -398,3 +433,4 @@ if st.button('데이터 조회'):
 
     
     
+
