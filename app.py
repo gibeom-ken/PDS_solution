@@ -11,8 +11,6 @@ import pygwalker as pyg
 import streamlit.components.v1 as stc 
 
 
-
-
 plt.rcParams['font.family'] = 'AppleGothic'
 
 st.set_page_config(
